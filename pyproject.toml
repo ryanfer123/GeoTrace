@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geotrace-local"
+version = "0.1.0"
+description = "A local desk for satellite browse-image investigations"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["geotrace*"]
+
+[tool.setuptools.package-data]
+geotrace = ["web/*", "web/vendor/*", "data/*", "data/reference/*"]
