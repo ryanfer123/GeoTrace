@@ -946,3 +946,9 @@ footer a {
     opacity: 1 !important;
   }
 }
+
+/* Account storage is explicit and stays secondary to local investigation work. */
+.masthead .cloud-trigger { margin-left: auto; min-height: 36px; font-size: 10px; padding: 8px 12px; }
+.masthead .cloud-trigger + .source-link { margin-left: 0; }
+@media (max-width: 900px) { .masthead .brand-description { display: none; } }
+@media (max-width: 600px) { .masthead .cloud-trigger + .source-link { display: none; } }

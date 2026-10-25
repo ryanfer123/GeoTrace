@@ -22,3 +22,18 @@ NASA Earthdata imagery background: https://www.earthdata.nasa.gov/data/tools/gib
 
 The application source is MIT licensed. Third-party browser assets retain their
 own terms in `geotrace/web/vendor`.
+
+
+## Homepage assets
+
+The homepage reuses the same original NASA reference pair at
+`geotrace/web/home-assets/aral-earlier.jpg` and `aral-later.jpg`. Their source URLs,
+retrieval times, byte counts, and SHA256 hashes are retained in the adjacent
+`provenance.json`. Hero and detail crops are presentation crops of those original
+browse images; the comparison workspace retains the full requested view.
+
+Additional homepage Solar icons from the same credited Iconify package:
+`arrow-right-up-linear`, `arrow-down-linear`, `hamburger-menu-linear`,
+`double-alt-arrow-left-linear`, `notebook-linear`, `check-circle-linear`,
+`document-text-linear`, and `code-square-linear`. Existing map, layers, and eye
+icons are reused. No new imagery source or external font service is introduced.

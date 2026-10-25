@@ -118,8 +118,11 @@ function showComparison(comparison) {
     Math.min(1200, Math.round((1200 * (north - south)) / (east - west))),
   );
   $("scene").style.aspectRatio = `1200 / ${height}`;
-  $("before-image").src = "/api/images/" + sources.before.key;
-  $("after-image").src = "/api/images/" + sources.after.key;
+  const imageSource = (source) => globalThis.HostedWorkspace?.imageSource
+    ? globalThis.HostedWorkspace.imageSource(source)
+    : "/api/images/" + source.key;
+  $("before-image").src = imageSource(sources.before);
+  $("after-image").src = imageSource(sources.after);
   $("before-image").alt =
     `${spec.before} NASA satellite browse image, bounds ${spec.bounds.join(", ")}`;
   $("after-image").alt =
@@ -283,3 +286,41 @@ $("refresh-catalog").addEventListener("click", async () => {
     notice(error.message, true);
   }
 })();
+
+
+// Cloud copies keep the source description, then restore through normal source
+// validation. Remote hashes and image URLs are never trusted as executable input.
+if (globalThis.CloudWorkspace) {
+  const cloudNotebook = CloudWorkspace.init({
+    kind: "GeoTrace",
+    title: "Your cloud investigations",
+    getSnapshot: async () => {
+      if (!current) throw new Error("Load a comparison before saving a cloud copy.");
+      return {
+        schema: "geotrace-investigation-v1",
+        spec: { ...current.spec, name: $("name").value, notes: $("notes").value },
+        sources: current.sources,
+        catalog_verified: current.catalog_verified,
+      };
+    },
+    onLoad: async (payload) => {
+      if (!payload || Array.isArray(payload) || payload.schema !== "geotrace-investigation-v1"
+          || !payload.spec || Array.isArray(payload.spec) || typeof payload.spec !== "object") {
+        throw new Error("This cloud copy is not a supported GeoTrace investigation.");
+      }
+      if (busy) throw new Error("Wait for the current comparison to finish before opening a cloud copy.");
+      const comparison = await api("/api/compare", payload.spec);
+      applySpec(comparison.spec);
+      $("preset").value = "custom";
+      showComparison(comparison);
+      const sourceChanged = ["before", "after"].some((side) => {
+        const savedHash = payload.sources?.[side]?.sha256;
+        return typeof savedHash === "string" && savedHash !== comparison.sources[side].sha256;
+      });
+      notice(sourceChanged
+        ? "Source bytes changed since this cloud copy; showing freshly fetched imagery."
+        : "Cloud investigation opened with freshly validated source imagery.");
+    },
+  });
+  $("cloud-button").addEventListener("click", () => cloudNotebook.open());
+}

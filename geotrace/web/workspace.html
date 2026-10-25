@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GeoTrace · A place, across time</title>
+    <link rel="icon" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/vendor/manrope-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/vendor/lenis.css" />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/cloud.css" />
+    <script src="/vendor/gsap.min.js" defer></script>
+    <script src="/vendor/ScrollTrigger.min.js" defer></script>
+    <script src="/vendor/lenis.min.js" defer></script>
+    <script src="/motion.js" defer></script>
+    <script src="/cloud.js" defer></script>
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <noscript
+      ><div class="notice">
+        Enable JavaScript for image comparison. Source metadata and the Python
+        application remain available locally.
+      </div></noscript
+    >
+    <header class="masthead">
+      <a href="/" class="brand"
+        ><span class="brand-mark" aria-hidden="true">g<span>t</span></span
+        >GeoTrace</a
+      ><span class="brand-description">An earth observation notebook</span
+      ><button id="cloud-button" class="button secondary cloud-trigger" type="button">Cloud notebook</button><a
+        class="source-link"
+        href="https://nasa-gibs.github.io/gibs-api-docs/"
+        target="_blank"
+        rel="noreferrer"
+        ><span class="status-dot"></span> Imagery by NASA GIBS ↗</a
+      >
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <p class="workspace-label">Observe a place. Keep the evidence.</p>
+          <h1 aria-label="A place, across time.">
+            <span class="title-word" aria-hidden="true">A place,</span>
+            <span class="title-word" aria-hidden="true">across time.</span>
+          </h1>
+          <p>
+            Compare satellite views. Record what you see. Trace every image to
+            its source.
+          </p>
+        </div>
+        <div class="intro-aside">
+          <span>Visual investigation</span>
+          <p>
+            Two dates. One shared view.<br />Keep observation separate from
+            inference.
+          </p>
+        </div>
+      </div>
+      <div
+        id="notice"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+      <div class="workspace-grid">
+        <aside class="control-panel" aria-label="Investigation settings">
+          <form id="investigation-form">
+            <div class="panel-heading">
+              <span>01</span>
+              <h2>Choose your view</h2>
+            </div>
+            <label for="preset">Area</label
+            ><select id="preset">
+              <option value="aral">Aral Sea, Central Asia</option>
+              <option value="urmia">Lake Urmia, Iran</option>
+              <option value="california">Northern California, USA</option>
+              <option value="custom">Custom bounding box</option>
+            </select>
+            <div class="bounds-grid">
+              <div>
+                <label for="west">West longitude</label
+                ><input
+                  id="west"
+                  type="number"
+                  step="any"
+                  value="56"
+                  required
+                />
+              </div>
+              <div>
+                <label for="east">East longitude</label
+                ><input
+                  id="east"
+                  type="number"
+                  step="any"
+                  value="62"
+                  required
+                />
+              </div>
+              <div>
+                <label for="south">South latitude</label
+                ><input
+                  id="south"
+                  type="number"
+                  step="any"
+                  value="42"
+                  required
+                />
+              </div>
+              <div>
+                <label for="north">North latitude</label
+                ><input
+                  id="north"
+                  type="number"
+                  step="any"
+                  value="47"
+                  required
+                />
+              </div>
+            </div>
+            <p class="field-help">
+              EPSG:4326. Enter decimal degrees. Bounds stay aligned across both
+              dates.
+            </p>
+            <label for="layer">Satellite layer</label
+            ><select id="layer"></select>
+            <p class="field-help" id="availability"></p>
+            <div class="dates-grid">
+              <div>
+                <label for="before">Earlier view</label
+                ><input id="before" type="date" value="2001-08-01" required />
+              </div>
+              <div>
+                <label for="after">Later view</label
+                ><input id="after" type="date" value="2023-08-01" required />
+              </div>
+            </div>
+            <button
+              class="button primary wide"
+              id="compare-button"
+              type="submit"
+            >
+              <svg
+                class="icon"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M4.97883 9.68508C2.99294 8.89073 2 8.49355 2 8C2 7.50645 2.99294 7.10927 4.97883 6.31492L7.7873 5.19153C9.77318 4.39718 10.7661 4 12 4C13.2339 4 14.2268 4.39718 16.2127 5.19153L19.0212 6.31492C21.0071 7.10927 22 7.50645 22 8C22 8.49355 21.0071 8.89073 19.0212 9.68508L16.2127 10.8085C14.2268 11.6028 13.2339 12 12 12C10.7661 12 9.77318 11.6028 7.7873 10.8085L4.97883 9.68508Z"
+                  />
+                  <path
+                    d="M5.76613 10L4.97883 10.3149C2.99294 11.1093 2 11.5065 2 12C2 12.4935 2.99294 12.8907 4.97883 13.6851L7.7873 14.8085C9.77318 15.6028 10.7661 16 12 16C13.2339 16 14.2268 15.6028 16.2127 14.8085L19.0212 13.6851C21.0071 12.8907 22 12.4935 22 12C22 11.5065 21.0071 11.1093 19.0212 10.3149L18.2339 10"
+                  />
+                  <path
+                    d="M5.76613 14L4.97883 14.3149C2.99294 15.1093 2 15.5065 2 16C2 16.4935 2.99294 16.8907 4.97883 17.6851L7.7873 18.8085C9.77318 19.6028 10.7661 20 12 20C13.2339 20 14.2268 19.6028 16.2127 18.8085L19.0212 17.6851C21.0071 16.8907 22 16.4935 22 16C22 15.5065 21.0071 15.1093 19.0212 14.3149L18.2339 14"
+                  />
+                </g>
+              </svg>
+              Load comparison
+            </button>
+            <button class="text-button" id="refresh-catalog" type="button">
+              <svg
+                class="icon"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M3.67981 13L3.67981 11.3333C3.67981 6.73096 7.4402 3 12.0789 3C15.1178 3 17.7799 4.60136 19.2545 7M2 11.3333L3.67981 13L5.35962 11.3333"
+                  />
+                  <path
+                    d="M20.3139 11V12.6667C20.3139 17.269 16.5391 21 11.8827 21C8.83213 21 6.15995 19.3986 4.67969 17M22.0001 12.6667L20.3139 11L18.6277 12.6667"
+                  />
+                </g>
+              </svg>
+              Refresh layer availability
+            </button>
+            <p class="metadata-note" id="catalog-date"></p>
+          </form>
+          <div class="notebook">
+            <div class="panel-heading">
+              <span>02</span>
+              <h2>Keep a field note</h2>
+            </div>
+            <label for="name">Investigation name</label
+            ><input
+              id="name"
+              value="Aral Sea shoreline study"
+              maxlength="120"
+            /><label for="notes">Your observations</label
+            ><textarea
+              id="notes"
+              rows="4"
+              maxlength="10000"
+              placeholder="Describe what you can see. Note clouds, season, or uncertainty."
+            ></textarea
+            ><button class="button secondary wide" id="save-button" disabled>
+              <svg
+                class="icon"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M18.18 8.03933L18.6435 7.57589C19.4113 6.80804 20.6563 6.80804 21.4241 7.57589C22.192 8.34374 22.192 9.58868 21.4241 10.3565L20.9607 10.82M18.18 8.03933C18.18 8.03933 18.238 9.02414 19.1069 9.89309C19.9759 10.762 20.9607 10.82 20.9607 10.82M20.9607 10.82L16.7001 15.0806C16.4115 15.3692 16.2672 15.5135 16.1081 15.6376C15.9204 15.7839 15.7173 15.9094 15.5025 16.0118C15.3203 16.0986 15.1268 16.1632 14.7396 16.2922L13.5 16.7054L13.099 16.8391L12.6979 16.9728C12.5074 17.0363 12.2973 16.9867 12.1553 16.8447C12.0133 16.7027 11.9637 16.4926 12.0272 16.3021L12.1609 15.901L12.2946 15.5L12.7078 14.2604C12.8368 13.8732 12.9014 13.6797 12.9882 13.4975C13.0906 13.2827 13.2161 13.0796 13.3624 12.8919C13.4865 12.7328 13.6308 12.5885 13.9194 12.2999L18.18 8.03933M13.099 16.8391L12.1609 15.901"
+                  />
+                  <path d="M8 13H10.5" />
+                  <path d="M8 9H14.5" />
+                  <path d="M8 17H9.5" />
+                  <path
+                    d="M19.8284 3.17157C18.6569 2 16.7712 2 13 2H11C7.22876 2 5.34315 2 4.17157 3.17157C3 4.34315 3 6.22876 3 10V14C3 17.7712 3 19.6569 4.17157 20.8284C5.34315 22 7.22876 22 11 22H13C16.7712 22 18.6569 22 19.8284 20.8284C20.7715 19.8853 20.9554 18.4796 20.9913 16"
+                  />
+                </g>
+              </svg>
+              Save investigation
+            </button>
+            <p class="field-help">
+              Saved locally with the exact imagery requests and file hashes.
+            </p>
+          </div>
+        </aside>
+        <section class="viewer-column" aria-label="Satellite comparison">
+          <div class="viewer-toolbar">
+            <div>
+              <span class="view-icon"
+                ><svg
+                  class="icon"
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <g
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-width="1.5"
+                  >
+                    <path
+                      d="M4 10.1433C4 5.64588 7.58172 2 12 2C16.4183 2 20 5.64588 20 10.1433C20 14.6055 17.4467 19.8124 13.4629 21.6744C12.5343 22.1085 11.4657 22.1085 10.5371 21.6744C6.55332 19.8124 4 14.6055 4 10.1433Z"
+                    />
+                    <circle cx="12" cy="10" r="3" />
+                  </g></svg
+              ></span>
+              <h2 id="view-title">Aral Sea, Central Asia</h2>
+            </div>
+            <span id="view-state">Loading source images…</span>
+          </div>
+          <div class="scene" id="scene">
+            <img
+              id="before-image"
+              alt="Earlier satellite view of the selected geographic area"
+            /><img
+              id="after-image"
+              class="after-image"
+              alt="Later satellite view of the same geographic area"
+            />
+            <div class="scene-label before-label">
+              <span>Earlier</span><strong id="before-label">2001-08-01</strong>
+            </div>
+            <div class="scene-label after-label">
+              <span>Later</span><strong id="after-label">2023-08-01</strong>
+            </div>
+            <div class="swipe-line" id="swipe-line">
+              <span aria-hidden="true">↔</span>
+            </div>
+            <div class="scene-coordinate" id="scene-coordinate">
+              56°E – 62°E / 42°N – 47°N
+            </div>
+            <div class="image-loading" id="image-loading">
+              <span class="loading-orbit" aria-hidden="true"></span>
+              <p>Preparing the satellite views</p>
+              <small>The Aral Sea reference pair is included locally.</small>
+            </div>
+          </div>
+          <div class="swipe-controls">
+            <label for="swipe">Slide to compare</label
+            ><input
+              id="swipe"
+              type="range"
+              min="0"
+              max="100"
+              value="50"
+              aria-label="Earlier and later image split"
+            /><span id="split-value">50 / 50</span>
+          </div>
+          <div class="interpretation">
+            <span class="interpretation-symbol"
+              ><svg
+                class="icon"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M3.27489 15.2957C2.42496 14.1915 2 13.6394 2 12C2 10.3606 2.42496 9.80853 3.27489 8.70433C4.97196 6.49956 7.81811 4 12 4C16.1819 4 19.028 6.49956 20.7251 8.70433C21.575 9.80853 22 10.3606 22 12C22 13.6394 21.575 14.1915 20.7251 15.2957C19.028 17.5004 16.1819 20 12 20C7.81811 20 4.97196 17.5004 3.27489 15.2957Z"
+                  />
+                  <path
+                    d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+                  />
+                </g></svg
+            ></span>
+            <p>
+              <strong>Look closely. Interpret carefully.</strong> These are
+              browse images, not quantitative reflectance data. Clouds, season,
+              and viewing conditions can affect appearance. No vegetation index
+              or change area is calculated.
+            </p>
+          </div>
+          <details class="provenance" open>
+            <summary>Image provenance</summary>
+            <div id="provenance-content">
+              <p>Source URLs and checksums appear after a comparison loads.</p>
+            </div>
+          </details>
+        </section>
+      </div>
+      <section class="saved-section" aria-labelledby="saved-heading">
+        <div class="section-heading">
+          <div>
+            <span class="section-mark">Your local notebook</span>
+            <h2 id="saved-heading">Saved investigations</h2>
+          </div>
+          <span id="saved-count">0 observations</span>
+        </div>
+        <div id="saved-list" class="saved-list">
+          <p class="empty-note">
+            Save a comparison and its notes to keep a traceable record here.
+          </p>
+        </div>
+      </section>
+      <footer>
+        <span
+          >GeoTrace <span class="footer-dot">/</span> A place, across time</span
+        ><a
+          href="https://github.com/ryanfer123/GeoTrace"
+          target="_blank"
+          rel="noreferrer"
+          >Source & documentation ↗</a
+        ><span>NASA EOSDIS GIBS imagery</span>
+      </footer>
+    </main>
+  </body>
+</html>

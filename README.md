@@ -4,7 +4,7 @@ An earth-observation notebook for comparing satellite browse images across two
 dates. Choose a place, inspect a shared geographic view, record what you see, and
 save the exact source requests alongside your notes.
 
-![GeoTrace satellite comparison desk](docs/screenshots/desktop.jpg)
+![GeoTrace homepage](docs/screenshots/home-desktop.png)
 
 ## Run
 
@@ -14,11 +14,12 @@ cd GeoTrace
 python3 -m geotrace
 ```
 
-Open **http://127.0.0.1:8767**. Python 3.10+; no Python runtime packages or API keys.
-The app binds to loopback and keeps investigations in a local SQLite database.
-All browser fonts, icons, and motion libraries are served locally.
+Open **http://127.0.0.1:8767** for the homepage, then choose **Open workspace**
+or visit **http://127.0.0.1:8767/workspace**. Python 3.10+ is sufficient; the local
+analysis runtime uses the standard library. Local investigations live in SQLite,
+and browser fonts, icons, and motion libraries are served from the application.
 
-The first view is a real Aral Sea MODIS Terra reference pair from **2001-08-01** and
+The homepage and default workspace use a real Aral Sea MODIS Terra reference pair from **2001-08-01** and
 **2023-08-01**. Both original NASA GIBS JPEGs are bundled with request provenance,
 so this comparison works offline. New dates or areas require a connection to NASA.
 
@@ -31,6 +32,7 @@ so this comparison works offline. New dates or areas require a connection to NAS
 - Save observation notes and reopen investigations after restarting the app.
 - Export complete investigation JSON or a readable Markdown report.
 - Refresh NASA's advertised date availability when the bundled metadata gets old.
+- Optionally sign in through **Cloud notebook** to save private copies in Supabase.
 
 ## A traceable visual workflow
 
@@ -45,10 +47,13 @@ clouds, missing coverage, or a blank scene. Source failures are shown explicitly
 The metadata snapshot was verified on 2026-10-24; the refresh button updates the
 current server session's catalog.
 
-The cache validates image signatures and hashes. Saved image URLs are content
-addressed: a later reprocessed NASA image does not silently replace a previously
-saved image. Reports retain the original source URLs, response hashes, acquisition
-request dates, metadata date, and local retrieval time. The dates label requested
+The local cache validates image signatures and hashes, and local saved image keys
+are content-addressed. A later reprocessed NASA image does not silently replace a
+local cached snapshot. Cloud copies retain the selected specification, notes, and
+source metadata; reopening a cloud copy validates and reloads the sources, rather
+than trusting stored image URLs. Hosted views request imagery directly from NASA.
+Reports retain source URLs, response hashes, request dates, metadata dates, and
+retrieval times. The dates label requested
 GIBS data days, not an independent verification of sensor acquisition timestamps.
 
 ## Interpretation limits
@@ -78,8 +83,21 @@ Use a separate local workspace when needed:
 python3 -m geotrace --port 8792 --database field.sqlite3 --cache .field-images
 ```
 
-This is a single-user local app. It does not provide accounts, multi-user access
-control, remote deployment, or a scientific raster-processing pipeline.
+## Optional private cloud copies and hosting
+
+**Cloud notebook** connects directly from the browser to Supabase Auth and the
+private investigation table using a publishable key and the signed-in user's
+access token. Saving creates a new private copy; local work stays local until that
+explicit action. Restoring a copy recomputes a validated comparison through the
+normal API. See [SUPABASE.md](SUPABASE.md) for public configuration, RLS, session
+behavior, and verification boundaries.
+
+In local mode, SQLite and cached images stay on the same computer. In hosted mode,
+computation is stateless and current work is temporary in the browser tab until
+saved as a private cloud copy or exported. [DEPLOYMENT.md](DEPLOYMENT.md) documents
+the Vercel build, routing, browser-session adapter, and operational limits.
+GeoTrace remains a visual investigation tool, not a scientific raster-processing
+pipeline.
 
 ## Design and assets
 

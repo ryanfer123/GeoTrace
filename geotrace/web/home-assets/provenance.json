@@ -1,0 +1,20 @@
+{
+  "earlier": {
+    "key": "f629480d5721acb7480bcdfcff5c27ca5a685d712c83125dc7f6f4f64da85b24",
+    "url": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=MODIS_Terra_CorrectedReflectance_TrueColor&STYLES=&FORMAT=image%2Fjpeg&SRS=EPSG%3A4326&BBOX=56%2C42%2C62%2C47&WIDTH=1200&HEIGHT=1000&TIME=2001-08-01",
+    "sha256": "4f0353df046da752870deabc404d0055035e86b0f0c54ab3dd2f606c75eb65c9",
+    "bytes": 144587,
+    "fetched_at": "2026-10-24T17:34:26.201464+00:00",
+    "content_type": "image/jpeg",
+    "asset": "aral-earlier.jpg"
+  },
+  "later": {
+    "key": "3d8ebc9cba2f5e66879a8289099509c7c5be6f402791f3f8c2bb298663720fde",
+    "url": "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=MODIS_Terra_CorrectedReflectance_TrueColor&STYLES=&FORMAT=image%2Fjpeg&SRS=EPSG%3A4326&BBOX=56%2C42%2C62%2C47&WIDTH=1200&HEIGHT=1000&TIME=2023-08-01",
+    "sha256": "29a73078f7c3ef2545d5a7459db28095db4dd9289a979953c685930dea20bf7b",
+    "bytes": 109918,
+    "fetched_at": "2026-10-24T17:34:26.203894+00:00",
+    "content_type": "image/jpeg",
+    "asset": "aral-later.jpg"
+  }
+}

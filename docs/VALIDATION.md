@@ -49,7 +49,7 @@ independently establish sensor acquisition timestamps.
   responsive mineral/forest surfaces, editorial type, original brand mark,
   actual NASA imagery, and quiet source annotations. No award claim is made.
 - **Karpathy guidelines:** one local Python application, explicit input contracts,
-  focused source-validation tests, no account system or unnecessary cloud stack.
+  focused source-validation tests, and optional private cloud copies that do not replace local analysis.
 - **Python testing:** regressions cover exact date gaps, malformed input, source
   failures, immutable content-addressed image keys, connection closure, and the
   actual HTTP import/save/export paths.
@@ -66,7 +66,49 @@ sources are recorded in [THIRD_PARTY.md](../THIRD_PARTY.md).
 
 ## Limits
 
-This is a single-user loopback tool. There is no independent environmental
+Local mode is a single-user loopback tool. Hosted mode uses stateless compute and temporary browser work, with optional private cloud copies. There is no independent environmental
 validation, cloud mask, quantitative reflectance processing, NDVI, burn severity,
 or change-area estimator. The default reference workflow works offline; new
 scenes and live metadata refresh depend on NASA service/network availability.
+
+
+## Homepage and optional cloud integration (2026-10-25)
+
+The root route now presents a real NASA imagery-led homepage; `/workspace`
+opens the existing tool. The homepage includes the original source requests,
+workflow, interpretation limits, storage scope, and exports. Reduced motion
+bypasses GSAP/Lenis enhancement and leaves all content visible.
+
+Local route tests verify the separate pages, homepage imagery, cloud assets,
+configuration isolation, and the exact configured Supabase origin in CSP.
+The public config response explicitly reports `hosted: false`; the ignored local
+configuration is never served. The cloud adapter saves the selected specification,
+notes and provenance, then validates and recomputes through `/api/compare` on
+restore. It never uses saved remote image URLs as an image source. A Node
+regression executes that actual adapter and checks unchanged hashes, changed-hash
+notification, invalid schema, and source failure without replacing the current
+view. Hosted imagery remains a current NASA URL; only local cached snapshots
+promise preservation of the inspected bytes.
+
+Automated client protocol tests use controlled responses; they do not prove a
+live authenticated browser session. Live deployment and authenticated isolation
+checks are recorded separately in deployment/cloud verification notes. The coordinating agent verified the new homepage and workspace in the browser, as recorded below.
+
+
+Final integration checks on 2026-10-25: **32 tests passed**, JavaScript syntax
+checks passed for app, home, cloud and hosted adapters, and `git diff --check`
+passed. A fresh Python 3.14 wheel built successfully; packaged homepage,
+workspace, app, cloud client and NASA assets matched their working-tree bytes.
+The wheel excludes the ignored local cloud configuration. The default Python
+3.15 runtime could run tests but lacked setuptools for packaging, so the wheel
+was built with the available Python 3.14 packaging environment.
+
+
+Coordinating-agent browser QA for this integration passed: homepage at 390 px
+had no horizontal overflow; navigation and split slider worked; workspace loaded
+both actual NASA images at 1200 × 1000; the cloud dialog displayed configured
+connection state. Evidence: [homepage desktop](screenshots/home-desktop.png) and
+[homepage mobile](screenshots/home-mobile.jpg). These checks verified the dialog
+and actual images, not a new authenticated cloud save.
+
+Parent browser verification: homepage and workspace tested at desktop and 390px mobile. No horizontal overflow; mobile navigation and image split work; both source images loaded at 1200px; configured cloud sign-in panel opened without creating accounts.

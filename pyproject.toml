@@ -14,4 +14,4 @@ dependencies = []
 include = ["geotrace*"]
 
 [tool.setuptools.package-data]
-geotrace = ["web/*", "web/vendor/*", "data/*", "data/reference/*"]
+geotrace = ["web/*", "web/vendor/*", "web/home-assets/*", "data/*", "data/reference/*"]

@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 import uuid
 
 from . import __version__
+from .cloud import cloud_config
 from .core import (
     SNAPSHOT,
     fetch_image,
@@ -48,9 +49,12 @@ class Handler(SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Cache-Control", "no-store")
+        config = cloud_config()
+        origin = f" {config['url']}" if config.get("configured") else ""
         self.send_header(
             "Content-Security-Policy",
-            "default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; frame-ancestors 'none'",
+            "default-src 'self'; script-src 'self'; style-src 'self'; "
+            f"connect-src 'self'{origin}; object-src 'none'; frame-ancestors 'none'",
         )
         super().end_headers()
 
@@ -84,7 +88,9 @@ class Handler(SimpleHTTPRequestHandler):
         if not self.valid_host():
             return
         path = urlsplit(self.path).path
-        if path == "/api/state":
+        if path == "/api/cloud/config":
+            self.send_data(dict(cloud_config(), hosted=False))
+        elif path == "/api/state":
             with connect(self.database) as db:
                 records = [
                     json.loads(row[0])
@@ -132,13 +138,23 @@ class Handler(SimpleHTTPRequestHandler):
                 )
                 return
             self.send_data(file.read_bytes(), "image/jpeg")
-        elif path in ("/", "/app.js", "/motion.js", "/style.css", "/favicon.svg") or (
-            path.startswith("/vendor/")
-            and Path(path).name in {p.name for p in (WEB / "vendor").iterdir()}
-        ):
-            super().do_GET()
         else:
-            self.send_data({"error": "Not found."}, status=404)
+            pages = {"/": "/index.html", "/workspace": "/workspace.html", "/workspace/": "/workspace.html"}
+            files = {
+                "/index.html", "/workspace.html", "/app.js", "/motion.js",
+                "/style.css", "/favicon.svg", "/home.css", "/home.js",
+                "/cloud.css", "/cloud.js", "/hosted.css", "/hosted.js",
+            }
+            for folder in ("vendor", "home-assets"):
+                directory = WEB / folder
+                if directory.is_dir():
+                    files.update(f"/{folder}/{item.name}" for item in directory.iterdir() if item.is_file())
+            target = pages.get(path, path)
+            if target not in files:
+                self.send_data({"error": "Not found."}, status=404)
+                return
+            self.path = target
+            super().do_GET()
 
     def do_POST(self):
         if not self.valid_host():
